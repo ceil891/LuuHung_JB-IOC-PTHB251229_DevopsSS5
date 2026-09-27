@@ -1,0 +1,24 @@
+name: quickbite-database
+services:
+  quickbite-db:
+    image: postgres:15-alpine
+    container_name: quickbite-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD before starting this optional database}
+    env_file: ../.env
+    volumes:
+      - data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - quickbite-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+volumes:
+  data:
+networks:
+  quickbite-net:
+    name: quickbite-net
